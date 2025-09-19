@@ -9,6 +9,9 @@ const AuthForm = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  // ✅ Use env var (from .env or Vercel settings)
+  const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:3500";
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -22,7 +25,7 @@ const AuthForm = () => {
         ? form
         : { email: form.email, password: form.password };
 
-      const response = await axios.post(`http://localhost:3500${url}`, payload);
+      const response = await axios.post(`${API_BASE}${url}`, payload);
 
       if (!isSignUp) {
         localStorage.setItem('token', response.data.token);
