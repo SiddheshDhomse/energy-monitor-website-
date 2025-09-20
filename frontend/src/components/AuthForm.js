@@ -10,8 +10,7 @@ const AuthForm = () => {
   const navigate = useNavigate();
 
   // ✅ Use env var (from .env or Vercel settings)
-  const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:3500";
-
+const API_BASE = process.env.REACT_APP_API_URL || "https://energy-monitor-website-1.onrender.com";
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
