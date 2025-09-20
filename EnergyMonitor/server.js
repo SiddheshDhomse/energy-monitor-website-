@@ -11,21 +11,26 @@ const connectDB = require('./config/dbConn')
 const mongoose = require('mongoose')
 const PORT = process.env.PORT || 3500
 
+// Connect to MongoDB
 connectDB()
 
+// Middlewares
 app.use(logger)
 
+// ✅ Apply CORS before routes
 app.use(cors(corsOptions))
 
 app.use(express.json())
-
 app.use(cookieParser())
 
+// Static files
 app.use('/', express.static(path.join(__dirname, 'public')))
 
+// Routes
 app.use('/', require('./routes/root'))
 app.use('/users', require('./routes/userRoutes'))
 
+// 404 Handler
 app.all('*', (req, res) => {
     res.status(404)
     if (req.accepts('html')) {
@@ -37,14 +42,19 @@ app.all('*', (req, res) => {
     }
 })
 
+// Error Handler
 app.use(errorHandler)
 
+// MongoDB connection
 mongoose.connection.once('open', () => {
-    console.log('Connected to MongoDB')
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
+    console.log('✅ Connected to MongoDB')
+    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`))
 })
 
 mongoose.connection.on('error', err => {
     console.log(err)
-    logEvents(`${err.no}: ${err.code}\t${err.syscall}\t${err.hostname}`, 'mongoErrLog.log')
+    logEvents(
+        `${err.no}: ${err.code}\t${err.syscall}\t${err.hostname}`,
+        'mongoErrLog.log'
+    )
 })
