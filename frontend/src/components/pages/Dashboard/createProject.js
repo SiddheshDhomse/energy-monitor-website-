@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import Navbar from '../../Navbar'; 
 import Sidebar from './projectList';
@@ -6,9 +5,7 @@ import Graphs from './Graphs';
 import toast, { Toaster } from 'react-hot-toast';
 import axios from 'axios';
 
-
 const CreateProject = () => {
-  
   const [projectName, setProjectName] = useState('');
   const [projects, setProjects] = useState([]);
   const [selectedProject, setSelectedProject] = useState('');
@@ -18,17 +15,20 @@ const CreateProject = () => {
   const [avgData, setAvgData] = useState([]);
   const [selectedRegion, setSelectedRegion] = useState("");
 
+  // ✅ Use environment variable for API base
+  const API_BASE = process.env.REACT_APP_API_URL || "https://energy-monitor-website-1.onrender.com";
+
   const fetchProjects = useCallback(async () => {
     if (!user?.email) return;
     try {
-      const res = await axios.post('http://localhost:3500/users/getProjects', {
+      const res = await axios.post(`${API_BASE}/users/getProjects`, {
         email: user.email
       });
       setProjects(res.data.projectNames || []);
     } catch (err) {
       toast.error("Failed to load projects");
     }
-  }, [user?.email]);
+  }, [user?.email, API_BASE]);
 
   useEffect(() => {
     fetchProjects();
@@ -39,7 +39,7 @@ const CreateProject = () => {
     if (!projectName.trim()) return toast.error("Enter project name");
 
     try {
-      await axios.post('http://localhost:3500/users/addProject', {
+      await axios.post(`${API_BASE}/users/addProject`, {
         email: user.email,
         projectName: projectName.trim()
       });
@@ -54,7 +54,7 @@ const CreateProject = () => {
 
   const handleVisualizeAll = async () => {
     try {
-      const res = await axios.post('http://localhost:3500/users/getAllProjectAverages', {
+      const res = await axios.post(`${API_BASE}/users/getAllProjectAverages`, {
         email: user.email
       });
       setAvgData(res.data.averages || []);
@@ -72,7 +72,7 @@ const CreateProject = () => {
     setAvgData([]);
 
     try {
-      const res = await axios.post('http://localhost:3500/users/getProjectRuns', {
+      const res = await axios.post(`${API_BASE}/users/getProjectRuns`, {
         email: user.email,
         projectName: name
       });
@@ -93,46 +93,44 @@ const CreateProject = () => {
 
   return (
     <>
-  <Navbar />
-  <Toaster position="top-right" />
+      <Navbar />
+      <Toaster position="top-right" />
 
-  <div className="dashboard-scroll-wrapper">
-    <div className="create-project-layout">
-      <h2>Create New Project</h2>
-      <p>Start tracking energy usage by creating your project below.</p>
-      <form onSubmit={handleSubmit} className="project-form-inline">
-        <label htmlFor="projectName">Project Name:</label>
-        <input
-          id="projectName"
-          type="text"
-          placeholder="Enter project name here"
-          value={projectName}
-          onChange={(e) => setProjectName(e.target.value)}
-        />
-        <button type="submit">Submit</button>
-      </form>
-    </div>
+      <div className="dashboard-scroll-wrapper">
+        <div className="create-project-layout">
+          <h2>Create New Project</h2>
+          <p>Start tracking energy usage by creating your project below.</p>
+          <form onSubmit={handleSubmit} className="project-form-inline">
+            <label htmlFor="projectName">Project Name:</label>
+            <input
+              id="projectName"
+              type="text"
+              placeholder="Enter project name here"
+              value={projectName}
+              onChange={(e) => setProjectName(e.target.value)}
+            />
+            <button type="submit">Submit</button>
+          </form>
+        </div>
 
-    <div className="page-layout">
-      <Sidebar
-        projects={projects}
-        onSelectProject={handleProjectSelect}
-        onVisualizeAll={handleVisualizeAll}
-      />
-       <Graphs
-        runData={runData}
-        avgData={avgData}
-        selectedProject={selectedProject}
-        showAllGraphs={showAllGraphs}
-        selectedRegion={selectedRegion}
-        onRegionChange={setSelectedRegion}
-      />
-    </div>
-  </div>
-</>
-
+        <div className="page-layout">
+          <Sidebar
+            projects={projects}
+            onSelectProject={handleProjectSelect}
+            onVisualizeAll={handleVisualizeAll}
+          />
+          <Graphs
+            runData={runData}
+            avgData={avgData}
+            selectedProject={selectedProject}
+            showAllGraphs={showAllGraphs}
+            selectedRegion={selectedRegion}
+            onRegionChange={setSelectedRegion}
+          />
+        </div>
+      </div>
+    </>
   );
 };
 
 export default CreateProject;
-
