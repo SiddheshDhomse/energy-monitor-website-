@@ -10,7 +10,9 @@ const AuthForm = () => {
   const navigate = useNavigate();
 
   // ✅ Use env var (from .env or Vercel settings)
-const API_BASE = process.env.REACT_APP_API_URL || "https://energy-monitor-website-1.onrender.com";
+  const API_BASE =
+    process.env.REACT_APP_API_URL || 'https://energy-monitor-website-1.onrender.com';
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -24,25 +26,33 @@ const API_BASE = process.env.REACT_APP_API_URL || "https://energy-monitor-websit
         ? form
         : { email: form.email, password: form.password };
 
-      const response = await axios.post(`${API_BASE}${url}`, payload);
+      const response = await axios.post(`${API_BASE}${url}`, payload, {
+        withCredentials: true, // ✅ allow cookies/session if backend uses them
+      });
+
+      console.log("🔎 API response:", response.data);
 
       if (!isSignUp) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
-        navigate('/home');
+        if (response.data.token && response.data.user) {
+          localStorage.setItem('token', response.data.token);
+          localStorage.setItem('user', JSON.stringify(response.data.user));
+          navigate('/home');
+        } else {
+          setError('Invalid response from server (missing token or user)');
+        }
       } else {
         alert('Signup successful! Please login.');
         setIsSignUp(false);
         setForm({ username: '', email: '', password: '' });
       }
     } catch (err) {
-      console.error("Axios error:", err);
+      console.error('Axios error:', err);
       setError(err.response?.data?.message || 'An error occurred');
     }
   };
 
   return (
-    <div className={`container ${isSignUp ? "right-panel-active" : ""}`} id="container">
+    <div className={`container ${isSignUp ? 'right-panel-active' : ''}`} id="container">
       {/* Signup Form */}
       <div className="form-container sign-up-container">
         <form onSubmit={handleSubmit}>
@@ -54,6 +64,7 @@ const API_BASE = process.env.REACT_APP_API_URL || "https://energy-monitor-websit
             value={form.username}
             onChange={handleChange}
             required
+            autoComplete="username" // ✅ fixed
           />
           <input
             type="email"
@@ -62,6 +73,7 @@ const API_BASE = process.env.REACT_APP_API_URL || "https://energy-monitor-websit
             value={form.email}
             onChange={handleChange}
             required
+            autoComplete="email" // ✅ fixed
           />
           <input
             type="password"
@@ -70,6 +82,7 @@ const API_BASE = process.env.REACT_APP_API_URL || "https://energy-monitor-websit
             value={form.password}
             onChange={handleChange}
             required
+            autoComplete="new-password" // ✅ fixed
           />
           <button type="submit">Sign Up</button>
         </form>
@@ -86,6 +99,7 @@ const API_BASE = process.env.REACT_APP_API_URL || "https://energy-monitor-websit
             value={form.email}
             onChange={handleChange}
             required
+            autoComplete="email" // ✅ fixed
           />
           <input
             type="password"
@@ -94,6 +108,7 @@ const API_BASE = process.env.REACT_APP_API_URL || "https://energy-monitor-websit
             value={form.password}
             onChange={handleChange}
             required
+            autoComplete="current-password" // ✅ fixed
           />
           <button type="submit">Sign In</button>
         </form>
@@ -105,12 +120,16 @@ const API_BASE = process.env.REACT_APP_API_URL || "https://energy-monitor-websit
           <div className="overlay-panel overlay-left">
             <h1>Welcome Back!</h1>
             <p>Check your energy logs and keep training responsibly.</p>
-            <button className="ghost" onClick={() => setIsSignUp(false)}>Sign In</button>
+            <button className="ghost" onClick={() => setIsSignUp(false)}>
+              Sign In
+            </button>
           </div>
           <div className="overlay-panel overlay-right">
             <h1>Hello, Eco Warriors!</h1>
             <p>Start tracking your model’s energy use and build sustainably.</p>
-            <button className="ghost" onClick={() => setIsSignUp(true)}>Sign Up</button>
+            <button className="ghost" onClick={() => setIsSignUp(true)}>
+              Sign Up
+            </button>
           </div>
         </div>
       </div>
